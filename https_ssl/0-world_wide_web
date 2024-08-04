@@ -1,94 +1,33 @@
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #!/usr/bin/env bash
-# print domains and subdomains
+# Bash script that will display information about subdomains
 
-print_domain_subdomain () {
-    domain=$1
-    subdomain=$2
-    result=$(dig "$subdomain.$domain" +short)
-    if [[ -z "$result" ]]; then
-        echo "The subdomain $subdomain.$domain does not exist"
-        return
+SUB1="www"
+SUB2="lb-01"
+SUB3="web-01"
+SUB4="web-02"
+
+my_digger ()
+{
+    if [ ! -z "$1" ] && [ -z "$2" ]; then
+        myvar_a1="The subdomain $SUB1 is a "
+        myvar_a2=$(dig $SUB1.$1 | grep -A1 'ANSWER SECTION:' | tail -n1 | awk '{print $4 " record and points to " $5}')
+        myvar_b1="The subdomain $SUB2 is a "
+        myvar_b2=$(dig $SUB2.$1 | grep -A1 'ANSWER SECTION:' | tail -n1 | awk '{print $4 " record and points to " $5}')
+        myvar_c1="The subdomain $SUB3 is a "
+        myvar_c2=$(dig $SUB3.$1 | grep -A1 'ANSWER SECTION:' | tail -n1 | awk '{print $4 " record and points to " $5}')
+        myvar_d1="The subdomain $SUB4 is a "
+        myvar_d2=$(dig $SUB4.$1 | grep -A1 'ANSWER SECTION:' | tail -n1 | awk '{print $4 " record and points to " $5}')
+
+        echo "$myvar_a1$myvar_a2"
+        echo "$myvar_b1$myvar_b2"
+        echo "$myvar_c1$myvar_c2"
+        echo "$myvar_d1$myvar_d2"
+
+    elif [ ! -z "$1" ] && [ ! -z "$2" ]; then
+        myvar1="The subdomain $2 is a "
+        myvar2=$(dig $2.$1 | grep -A1 'ANSWER SECTION:' | tail -n1 | awk '{print $4 " record and points to " $5}')
+        echo "$myvar1$myvar2"
     fi
-    destination=$(echo "$result" | head -n 1)
-    if [[ "$destination" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-        record_type="A"
-    elif [[ "$destination" =~ ^[a-fA-F0-9:]+$ ]]; then
-        record_type="AAAA"
-    else
-        record_type="CNAME"
-    fi
-    echo "The subdomain $subdomain is a $record_type record and points to $destination"
 }
 
-if [ "$#" -eq 2 ]; then
-    print_domain_subdomain "$1" "$2"
-else
-    print_domain_subdomain "$1" "www"
-    print_domain_subdomain "$1" "lb-01"
-    print_domain_subdomain "$1" "web-01"
-    print_domain_subdomain "$1" "web-02"
-fi
+my_digger "$1" "$2"
